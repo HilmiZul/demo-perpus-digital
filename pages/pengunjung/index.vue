@@ -24,6 +24,9 @@
             </tr>
           </thead>
           <tbody>
+            <tr v-if="loading">
+              <td colspan="5" class="text-center"><h1>TUNGGU SEBENTAR...</h1></td>
+            </tr>
             <tr v-for="(visitor,i) in visitors" :key="i">
               <td>{{ i+1 }}.</td>
               <td>{{ visitor.nama }}</td>
@@ -42,12 +45,16 @@
 const supabase = useSupabaseClient()
 
 const visitors = ref([])
+const loading = ref(true)
 
 const getPengunjung = async () => {
   const { data, error } = await supabase.from('pengunjung')
     .select(`*, keanggotaan(*), keperluan(*)`)
     .order('id', { ascending: false })
-  if(data) visitors.value = data
+  if(data) {
+    loading.value = false
+    visitors.value = data
+  }
 }
 
 onMounted(() => {
