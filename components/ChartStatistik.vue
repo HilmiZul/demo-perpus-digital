@@ -1,13 +1,40 @@
 <template>
   <div>
-    <canvas id="myChart"></canvas>
+  	<canvas v-if="labels && jumlahPengunjung" id="myChart"></canvas>
   </div>
 </template>
 
 <script setup lang="ts">
 import Chart from 'chart.js/auto'
 
-const labels = [
+const client = useSupabaseClient()
+const jumlahPengunjung = [] // array biasa 
+const labels = []
+
+const getMonthByGrouped = async () => {
+  const { data, error } = await client
+	  .from('pengunjunggetmonth')
+		.select()
+	if(data) {
+		data.map((i) => {
+		  const d = new Date()
+			labels.push(months[i.bulan-1])
+		})
+	}
+}
+
+const getJumlahPengunjungPerBulan = async () => {
+  const { data, error } = await client
+	  .from('jumlahpengunjungperbulan')
+		.select()
+	if(data) {
+	  data.map((i) => {
+		  jumlahPengunjung.push(i.jumlah)
+		})
+	}
+}
+
+const months = [
   'Januari',
   'Pebruari',
   'Maret',
@@ -15,17 +42,23 @@ const labels = [
   'Mei',
   'Juni',
   'Juli',
+	'Agustus',
+	'September',
+	'Oktober',
+	'Nopember',
+	'Desember'
 ];
 
 const data = {
-  labels: labels,
+	labels: labels, 
   datasets: [{
     label: 'Pengunjung',
     backgroundColor: 'rgb(0, 153, 255, 100)',
     borderColor: 'rgb(255, 99, 132)',
-    data: [20, 10, 5, 2, 20, 50, 77],
+    data: jumlahPengunjung, 
   }]
 };
+
 
 const config: ChartConfiguration = {
   type: 'bar',
@@ -33,12 +66,15 @@ const config: ChartConfiguration = {
   options: {}
 };
 
+const gambarChart = () => {
+	const canvas = <ChartItem>document.getElementById('myChart')
+  new Chart(canvas, config)
+}
+
 onMounted(() => {
-  const canvas = <ChartItem>document.getElementById('myChart')
-  new Chart(
-    canvas,
-    config
-  );
+	getMonthByGrouped()
+	getJumlahPengunjungPerBulan()
+  gambarChart()
 })
 </script>
 
