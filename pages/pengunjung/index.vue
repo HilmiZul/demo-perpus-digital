@@ -10,9 +10,9 @@
           RIWAYAT KUNJUNGAN
         </h2>
         <div class="my-3">
-          <input type="search" class="form-control form-control-lg rounded-5" placeholder="Filter...">
+          <input v-model="keyword" type="search" class="form-control form-control-lg rounded-5" placeholder="Filter...">
         </div>
-        <div class="my-3 text-muted">menampilkan 1 dari 1</div>
+				<div class="my-3 text-muted">menampilkan {{ filteredData.length }} dari {{ visitors.length }}</div>
         <table class="table">
           <thead>
             <tr>
@@ -27,7 +27,7 @@
             <tr v-if="loading">
               <td colspan="5" class="text-center"><h1>TUNGGU SEBENTAR...</h1></td>
             </tr>
-            <tr v-for="(visitor,i) in visitors" :key="i">
+            <tr v-for="(visitor,i) in filteredData" :key="i">
               <td>{{ i+1 }}.</td>
               <td>{{ visitor.nama }}</td>
               <td>{{ visitor.keanggotaan.nama }}</td>
@@ -35,7 +35,7 @@
               <td>{{ visitor.keperluan.nama }}</td>
             </tr>
           </tbody>
-        </table>
+				</table> 
       </div>
     </div>
   </div>
@@ -46,6 +46,7 @@ const supabase = useSupabaseClient()
 
 const visitors = ref([])
 const loading = ref(true)
+const keyword = ref("")
 
 const getPengunjung = async () => {
   const { data, error } = await supabase.from('pengunjung')
@@ -61,4 +62,14 @@ onMounted(() => {
   getPengunjung()
 })
 
+const filteredData = computed(() => {
+  return visitors.value.filter((i) => {
+	  return (
+		  i.nama.toLowerCase().includes(keyword.value.toLowerCase())
+		)
+	})
+})
 </script>
+
+
+

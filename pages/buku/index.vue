@@ -9,9 +9,9 @@
           </form>
         </div>
         <h1 v-if="loading" class="text-center my-5">TUNGGU SEBENTAR....</h1>
-        <div class="my-3 text-muted">menampilkan 3 dari 3</div>
+				<div class="my-3 text-muted">menampilkan {{ filteredData.length }} dari {{ books.length }}</div>
         <div class="row">
-          <div v-for="(book,i) in books" :key="i" class="col-lg-2">
+          <div v-for="(book,i) in filteredData" :key="i" class="col-lg-2">
             <NuxtLink :to="`/buku/${book.id}`">
               <div class="card mb-3">
                 <div class="card-body">
@@ -34,7 +34,10 @@ const keyword = ref('')
 const loading = ref(true)
 
 const getBooks = async () => {
-  const { data, error } = await supabase.from('buku').select(`*, kategori(*)`).ilike('judul', `%${keyword.value}%`)
+  const { data, error } = await supabase
+	  .from('buku')
+		.select(`*, kategori(*)`)
+		/*.ilike('judul', `%${keyword.value}%`)*/
   if(data) {
     books.value = data
     loading.value = false
@@ -44,6 +47,16 @@ const getBooks = async () => {
 onMounted(() => {
   getBooks()
 })
+
+const filteredData = computed(() => {
+  return books.value.filter((i) => {
+	  return (
+		  i.judul.toLowerCase().includes(keyword.value.toLowerCase()) ||
+			i.penulis.toLowerCase().includes(keyword.value.toLowerCase())
+		)
+	})
+})
+
 </script>
 
 <style scoped>
