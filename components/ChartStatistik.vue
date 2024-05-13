@@ -1,6 +1,6 @@
 <template>
   <div>
-  	<canvas v-if="labels && jumlahPengunjung" id="myChart"></canvas>
+  	<canvas id="myChart"></canvas>
   </div>
 </template>
 
@@ -74,7 +74,9 @@ const gambarChart = () => {
 onMounted(() => {
 	getMonthByGrouped()
 	getJumlahPengunjungPerBulan()
-  gambarChart()
+  setTimeout(() => {
+    gambarChart()
+  },3000)
 })
 </script>
 
